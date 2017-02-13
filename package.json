@@ -1,0 +1,22 @@
+{
+  "name": "ku-keygenerate-backend",
+  "version": "1.0.0",
+  "description": "",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/melpst/ku-keygenerate-backend.git"
+  },
+  "author": "Jitlada Supreeyaporn",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/melpst/ku-keygenerate-backend/issues"
+  },
+  "homepage": "https://github.com/melpst/ku-keygenerate-backend#readme",
+  "dependencies": {
+    "express": "^4.14.1"
+  }
+}

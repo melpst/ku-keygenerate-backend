@@ -8,8 +8,15 @@ router.get('/', (req,res) => res.send('hello, world'))
 router.get('/login', (req,res) => res.send('this is login page'))
 
 router.post('/login', (req,res) => {
-	res.send({
-		'username' : req.body.username
+	const query = User.findOne({username : req.body.username})
+	.then((data) => {
+		if(data.password === req.body.password){
+			console.log('login successful')
+			res.status(200).redirect('/')
+		}
+		else{
+			res.status(422).send('wrong password')
+		}
 	})
 })
 

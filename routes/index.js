@@ -6,6 +6,12 @@ const router = Router()
 
 router.get('/', (req,res) => res.send('hello, world'))
 
+router.get('/users', (req,res) => {
+	User.find()
+	.then((data) => {
+		res.send(data)
+	})
+})
 
 router.get('/login', (req,res) => res.send('this is login page'))
 

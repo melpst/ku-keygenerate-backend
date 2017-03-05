@@ -18,15 +18,16 @@ router.get('/login', (req,res) => res.send('this is login page'))
 router.get('/keygen', (req, res) =>	{
 	const user = User.findOne({_id: req.session._id})
 	.then((data) => {
-		console.log('generating key pair')
-		if(user.key === undefined){
+		console.log(data)
+		if(data.key.publicKey === undefined){
+			console.log('generating key pair')
 			const key = new RSA ({b: 2048})
 			const publicKey = key.exportKey('pkcs8-public')
 			const privateKey = key.exportKey('pkcs8-private')
-
+			
 			User.update({_id: req.session._id}, {key: {publicKey, privateKey}})
 			.then((data) => {
-				console.log(user)
+				console.log(data)
 			})
 		}
 		else{
@@ -41,9 +42,9 @@ router.post('/login', (req,res) => {
 	const query = User.findOne({username : req.body.username})
 	.then((data) => {
 		if(data.password === req.body.password){
-			console.log(data)
+			console.log('saving _id to session')
 			req.session._id = data._id
-			console.log(req.session)
+			console.log('redirecting to /keygen')
 			res.status(200).redirect('/keygen')
 		}
 		else{

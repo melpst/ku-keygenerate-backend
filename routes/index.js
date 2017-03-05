@@ -40,4 +40,9 @@ router.post('/register', (req,res) => {
 	})
 })
 
+router.delete('/:username', (req, res) => {
+  User.remove({username: req.params.username})
+  .then(() => res.send({success: true}))
+})
+
 module.exports = router

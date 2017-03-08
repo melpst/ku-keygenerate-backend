@@ -6,14 +6,23 @@ const router = Router()
 
 router.get('/', (req,res) => res.send('hello, world'))
 
-router.get('/users', (req,res) => {
-	User.find()
+router.get('/encrypt', (req, res) => {
+	console.log(req.session._id)
+	User.findOne({_id: req.session._id})
 	.then((data) => {
+
+		const publicKey = new RSA(data.key.publicKey)
+		const privateKey = new RSA(data.key.privateKey)
+
+		const text = 'Hello RSA!';
+		const encrypted = publicKey.encrypt(text, 'base64');
+		console.log('encrypted: ', encrypted);
+		var decrypted = privateKey.decrypt(encrypted, 'utf8');
+		console.log('decrypted: ', decrypted);
+
 		res.send(data)
 	})
 })
-
-router.get('/login', (req,res) => res.send('this is login page'))
 
 router.get('/keygen', (req, res) =>	{
 	const user = User.findOne({_id: req.session._id})
@@ -36,6 +45,15 @@ router.get('/keygen', (req, res) =>	{
 	})
 	
 	res.send('this is keygen page')
+})
+
+router.get('/login', (req,res) => res.send('this is login page'))
+
+router.get('/users', (req,res) => {
+	User.find()
+	.then((data) => {
+		res.send(data)
+	})
 })
 
 router.post('/login', (req,res) => {

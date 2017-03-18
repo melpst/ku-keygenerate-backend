@@ -1,8 +1,15 @@
 const {Router} = require('express')
 const {User} = require('../models')
 const RSA = require('node-rsa')
+const ursa = require('./ursa')
+const nodeRSA = require('./node-rsa')
+const browserify = require('./browserify')
 
 const router = Router()
+
+router.use('/nodeRSA', nodeRSA)
+router.use('/ursa', ursa)
+router.use('/browserify', browserify)
 
 router.get('/', (req,res) => res.send('hello, world'))
 

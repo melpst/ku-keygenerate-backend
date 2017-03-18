@@ -18,7 +18,7 @@ app.use(session({
 	secret: 'qwertyuiop',
 	saveUninitialized: true,
 	resave: false
-}));
+}))
 
 app.use('/', routes)
 

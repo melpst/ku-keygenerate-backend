@@ -1,5 +1,8 @@
 const {Router} = require('express')
 const {User} = require('../models')
+const util = require('util')
+const exec = require('child_process').exec
+
 const RSA = require('node-rsa')
 const ursa = require('./ursa')
 const nodeRSA = require('./node-rsa')
@@ -14,18 +17,20 @@ router.use('/browserify', browserify)
 router.get('/', (req,res) => res.send('hello, world'))
 
 router.get('/encrypt', (req, res) => {
-	console.log(req.session._id)
 	User.findOne({_id: req.session._id})
 	.then((data) => {
+		exec('ls -al | grep '+data.username+'.pub', (error, stdout, stderr) => {
+				console.log(stdout)
+			})
 
-		const publicKey = new RSA(data.key.publicKey)
-		const privateKey = new RSA(data.key.privateKey)
+		// const publicKey = new RSA(data.key.publicKey)
+		// const privateKey = new RSA(data.key.privateKey)
 
-		const text = 'Hello RSA!';
-		const encrypted = publicKey.encrypt(text, 'base64');
-		console.log('encrypted: ', encrypted);
-		var decrypted = privateKey.decrypt(encrypted, 'utf8');
-		console.log('decrypted: ', decrypted);
+		// const text = 'Hello RSA!';
+		// const encrypted = publicKey.encrypt(text, 'base64');
+		// console.log('encrypted: ', encrypted);
+		// var decrypted = privateKey.decrypt(encrypted, 'utf8');
+		// console.log('decrypted: ', decrypted);
 
 		res.send(data)
 	})
@@ -37,14 +42,21 @@ router.get('/keygen', (req, res) =>	{
 		console.log(data)
 		if(data.key.publicKey === undefined){
 			console.log('generating key pair')
-			const key = new RSA ({b: 2048})
-			const publicKey = key.exportKey('pkcs8-public')
-			const privateKey = key.exportKey('pkcs8-private')
-			
-			User.update({_id: req.session._id}, {key: {publicKey, privateKey}})
-			.then((data) => {
-				console.log(data)
+			exec('./genkey.sh '+data.username+' file:passphrase.txt', (error, stdout, stderr) => {
+				console.log('created private key')
 			})
+			exec('ls -al | grep '+data.username+'.pem', (error, stdout, stderr) => {
+				console.log(stdout)
+			})
+			exec('ls -al | grep '+data.username+'.pub', (error, stdout, stderr) => {
+				console.log(stdout)
+			})
+			
+			
+			// User.update({_id: req.session._id}, {key: {publicKey, privateKey}})
+			// .then((data) => {
+			// 	console.log(data)
+			// })
 		}
 		else{
 			console.log('this user already has key pair')

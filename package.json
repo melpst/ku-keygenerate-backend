@@ -17,6 +17,7 @@
   },
   "homepage": "https://github.com/melpst/ku-keygenerate-backend#readme",
   "dependencies": {
+    "bluebird": "^3.5.0",
     "body-parser": "^1.16.1",
     "crypto-browserify": "^3.11.0",
     "express": "^4.14.1",

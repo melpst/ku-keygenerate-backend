@@ -41,22 +41,46 @@ router.get('/keygen', (req, res) =>	{
 	.then((data) => {
 		console.log(data)
 		if(data.key.publicKey === undefined){
+			let publicKey = ''
+			let privateKey = ''
 			console.log('generating key pair')
-			exec('./genkey.sh '+data.username+' file:passphrase.txt', (error, stdout, stderr) => {
-				console.log('created private key')
+			exec('./genkey.sh '+data.username+' file passphrase.txt', (error,stdout, stderr) => {
+				console.log('created key pair')
 			})
-			exec('ls -al | grep '+data.username+'.pem', (error, stdout, stderr) => {
-				console.log(stdout)
+
+			const p1 = new Promise ((resolve, reject) => {
+					exec('ls -al | grep '+data.username+'.pub', (error, stdout, stderr) => {
+					if(stdout){
+						publicKey = data.username+'.pub'
+						resolve(publicKey)
+					}
+				})
 			})
-			exec('ls -al | grep '+data.username+'.pub', (error, stdout, stderr) => {
-				console.log(stdout)
+
+			const p2 = new Promise ((resolve, reject) => {
+					exec('ls -al | grep '+data.username+'.pem', (error, stdout, stderr) => {
+					if(stdout){
+						privateKey = data.username+'.pem'
+						resolve(privateKey)
+					}
+				})
+			})
+
+			Promise.all([p1,p2])
+			.then((value) => {
+				User.update({_id: req.session._id}, {key: {publicKey: value[0], privateKey:value[1]}})
+				.then((data) => {
+					console.log(privateKey)
+					console.log(publicKey)
+					if(data.ok == 1){
+						console.log('update success')
+					}
+				})
+			})
+			.crash((error) => {
+				console.log(error)
 			})
 			
-			
-			// User.update({_id: req.session._id}, {key: {publicKey, privateKey}})
-			// .then((data) => {
-			// 	console.log(data)
-			// })
 		}
 		else{
 			console.log('this user already has key pair')

@@ -10,6 +10,7 @@ const port = process.env.PORT || 3000
 const app = express()
 
 mongoose.connect(configDB.url)
+mongoose.Promise = require('bluebird')
 
 app.use(morgan('dev'))
 app.use(bodyParser.json())

@@ -3,16 +3,7 @@ const {User} = require('../models')
 const util = require('util')
 const exec = require('child_process').exec
 
-const RSA = require('node-rsa')
-const ursa = require('./ursa')
-const nodeRSA = require('./node-rsa')
-const browserify = require('./browserify')
-
 const router = Router()
-
-router.use('/nodeRSA', nodeRSA)
-router.use('/ursa', ursa)
-router.use('/browserify', browserify)
 
 router.get('/', (req,res) => res.send('hello, world'))
 

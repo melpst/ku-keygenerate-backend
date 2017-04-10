@@ -106,13 +106,20 @@ router.post('/login', (req,res) => {
 })
 
 router.post('/register', (req,res) => {
-	const newUser = new User()
-	newUser.username = req.body.username
-	newUser.password = req.body.password
-
-	newUser.save()
+	User.findOne({username: req.body.username})
 	.then((data) => {
-		res.status(201).send(data)
+		if(!data){
+			const newUser = new User()
+			newUser.username = req.body.username
+			newUser.password = req.body.password
+
+			newUser.save()
+			.then((data) => res.status(201).send(data))
+			.catch((error) => console.log(error))
+		}
+		else {
+			res.status(409).send('this username has been used')
+		}
 	})
 })
 

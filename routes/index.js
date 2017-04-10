@@ -19,20 +19,13 @@ router.get('/', (req,res) => res.send('hello, world'))
 router.get('/encrypt', (req, res) => {
 	User.findOne({_id: req.session._id})
 	.then((data) => {
-		exec('ls -al | grep '+data.username+'.pub', (error, stdout, stderr) => {
+		let cipherHex = ''
+		exec('openssl rsautl -encrypt -in file.txt -pubin -inkey '+data.key.publicKey+' -raw -hexdump -out '+data.username+'.enc', (error, stdout, stderr) => {
+				cipherHex = stdout
 				console.log(stdout)
 			})
 
-		// const publicKey = new RSA(data.key.publicKey)
-		// const privateKey = new RSA(data.key.privateKey)
-
-		// const text = 'Hello RSA!';
-		// const encrypted = publicKey.encrypt(text, 'base64');
-		// console.log('encrypted: ', encrypted);
-		// var decrypted = privateKey.decrypt(encrypted, 'utf8');
-		// console.log('decrypted: ', decrypted);
-
-		res.send(data)
+		res.send(cipherHex)
 	})
 })
 

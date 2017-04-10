@@ -77,9 +77,7 @@ router.get('/keygen', (req, res) =>	{
 					}
 				})
 			})
-			.crash((error) => {
-				console.log(error)
-			})
+			.catch((error) => console.log(error))
 			
 		}
 		else{
@@ -128,6 +126,7 @@ router.post('/register', (req,res) => {
 router.delete('/:username', (req, res) => {
   User.remove({username: req.params.username})
   .then(() => res.send({success: true}))
+  .catch((error) => console.log(error))
 })
 
 module.exports = router

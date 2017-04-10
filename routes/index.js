@@ -44,7 +44,7 @@ router.get('/keygen', (req, res) =>	{
 			let publicKey = ''
 			let privateKey = ''
 			console.log('generating key pair')
-			exec('./genkey.sh '+data.username+' file passphrase.txt', (error,stdout, stderr) => {
+			exec('./genkey.sh '+data.username, (error,stdout, stderr) => {
 				console.log('created key pair')
 			})
 

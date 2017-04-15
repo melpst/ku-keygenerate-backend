@@ -1,4 +1,5 @@
 const {Router} = require('express')
+const randomBytes = require('random-bytes')
 const {User} = require('../models')
 const util = require('util')
 const exec = require('child_process').exec
@@ -10,15 +11,30 @@ router.get('/', (req,res) => res.send('hello, world'))
 router.get('/encrypt', (req, res) => {
 	User.findOne({_id: req.session._id})
 	.then((data) => {
-		let cipherHex = ''
-		exec('openssl rsautl -encrypt -in file.txt -pubin -inkey '+data.key.publicKey+' -raw -hexdump -out '+data.username+'.enc', (error, stdout, stderr) => {
-				cipherHex = stdout
-				console.log(stdout)
+		const p1 = new Promise((resolve, reject) => {
+			exec('openssl rsautl -encrypt -in file.txt -pubin -inkey '+data.key.publicKey+' -raw -out '+data.username+'.enc', (error, stdout, stderr) => {
+				console.log('encrypted successfully')
+				resolve('resolve')
 			})
+		})
 
-		res.send(cipherHex)
+		const p2 = new Promise((resolve, reject) => {
+			exec('cat '+data.username+'.enc',(error, stdout, stderr) => {
+				resolve(stdout)
+			})
+		})
+
+		Promise.all([p1,p2])
+		.then((value) => {
+			res.send({cipher: value[1]})
+		})
+		.catch((error) => console.log(error))
+
+
 	})
 })
+
+router
 
 router.get('/keygen', (req, res) =>	{
 	const user = User.findOne({_id: req.session._id})
@@ -33,7 +49,7 @@ router.get('/keygen', (req, res) =>	{
 			})
 
 			const p1 = new Promise ((resolve, reject) => {
-					exec('ls -al | grep '+data.username+'.pub', (error, stdout, stderr) => {
+				exec('ls -al | grep '+data.username+'.pub', (error, stdout, stderr) => {
 					if(stdout){
 						publicKey = data.username+'.pub'
 						resolve(publicKey)
@@ -42,7 +58,7 @@ router.get('/keygen', (req, res) =>	{
 			})
 
 			const p2 = new Promise ((resolve, reject) => {
-					exec('ls -al | grep '+data.username+'.pem', (error, stdout, stderr) => {
+				exec('ls -al | grep '+data.username+'.pem', (error, stdout, stderr) => {
 					if(stdout){
 						privateKey = data.username+'.pem'
 						resolve(privateKey)
@@ -58,6 +74,9 @@ router.get('/keygen', (req, res) =>	{
 					console.log(publicKey)
 					if(data.ok == 1){
 						console.log('update success')
+					}
+					else{
+						console.log('error generateing keys')
 					}
 				})
 			})

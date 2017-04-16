@@ -18,7 +18,7 @@ router.get('/encrypt', (req, res) => {
 					resolve('resolve')
 				}
 				else{
-					console.log('cant encrpyt plain text')
+					console.log('cant encrypt plain text')
 					reject('reject')
 				}
 			})
@@ -145,7 +145,17 @@ router.post('/register', (req,res) => {
 
 router.delete('/:username', (req, res) => {
   User.remove({username: req.params.username})
-  .then(() => res.send({success: true}))
+  .then((data) => {
+  	exec('rm '+req.params.username+'.*', (error, stdout, stderr) => {
+		if(!error){
+			res.send('delete user successfully')
+		}
+		else{
+			console.log(error)
+			res.send('can delete user but key still in server')
+		}
+	})
+  })
   .catch((error) => console.log(error))
 })
 

@@ -13,14 +13,26 @@ router.get('/encrypt', (req, res) => {
 	.then((data) => {
 		const p1 = new Promise((resolve, reject) => {
 			exec('openssl rsautl -encrypt -in file.txt -pubin -inkey '+data.key.publicKey+' -raw -out '+data.username+'.enc', (error, stdout, stderr) => {
-				console.log('encrypted successfully')
-				resolve('resolve')
+				if(!error){
+					console.log('encrypted successfully')
+					resolve('resolve')
+				}
+				else{
+					console.log('cant encrpyt plain text')
+					reject('reject')
+				}
 			})
 		})
 
 		const p2 = new Promise((resolve, reject) => {
 			exec('cat '+data.username+'.enc',(error, stdout, stderr) => {
-				resolve(stdout)
+				if(!error){
+					resolve(stdout)
+				}
+				else{
+					console.log('cant find encrypted file')
+					reject('reject')
+				}
 			})
 		})
 
@@ -33,8 +45,6 @@ router.get('/encrypt', (req, res) => {
 
 	})
 })
-
-router
 
 router.get('/keygen', (req, res) =>	{
 	const user = User.findOne({_id: req.session._id})

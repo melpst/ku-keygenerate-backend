@@ -1,48 +1,28 @@
 const {Router} = require('express')
 const {User} = require('../models')
+const constants = require("constants")
+const crypto = require("crypto")
+const fs = require('fs')
+
 const util = require('util')
 const exec = require('child_process').exec
-const crypto = require('./crypto')
 
 const router = Router()
-
-router.use('/crypto', crypto)
 
 router.get('/', (req,res) => res.send('hello, world'))
 
 router.get('/encrypt', (req, res) => {
 	User.findOne({_id: req.session._id})
 	.then((data) => {
-		const p1 = new Promise((resolve, reject) => {
-			exec('openssl rsautl -encrypt -in file.txt -pubin -inkey '+data.key.publicKey+' -raw -out '+data.username+'.enc', (error, stdout, stderr) => {
-				if(!error){
-					console.log('encrypted successfully')
-					resolve('resolve')
-				}
-				else{
-					console.log('cant encrypt plain text')
-					reject('reject')
-				}
+		fs.readFile("./file.txt", "utf-8", function(err, plain) {
+			console.log(plain)
+			fs.readFile("./"+data.key.publicKey, 'utf8', function (err, data) {
+				console.log(data)
+				const bufferToEncrypt = new Buffer(plain);
+				const encrypted = crypto.publicEncrypt({"key":data, padding:constants.RSA_NO_PADDING}, bufferToEncrypt).toString("base64");
+				res.send(encrypted);  // length 256
 			})
 		})
-
-		const p2 = new Promise((resolve, reject) => {
-			exec('cat '+data.username+'.enc',(error, stdout, stderr) => {
-				if(!error){
-					resolve(stdout)
-				}
-				else{
-					console.log('cant find encrypted file')
-					reject('reject')
-				}
-			})
-		})
-
-		Promise.all([p1,p2])
-		.then((value) => {
-			res.send({cipher: value[1]})
-		})
-		.catch((error) => console.log(error))
 	})
 })
 

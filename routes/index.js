@@ -1,10 +1,12 @@
 const {Router} = require('express')
-const randomBytes = require('random-bytes')
 const {User} = require('../models')
 const util = require('util')
 const exec = require('child_process').exec
+const crypto = require('./crypto')
 
 const router = Router()
+
+router.use('/crypto', crypto)
 
 router.get('/', (req,res) => res.send('hello, world'))
 
@@ -41,8 +43,6 @@ router.get('/encrypt', (req, res) => {
 			res.send({cipher: value[1]})
 		})
 		.catch((error) => console.log(error))
-
-
 	})
 })
 

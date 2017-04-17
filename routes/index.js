@@ -31,47 +31,47 @@ router.get('/keygen', (req, res) =>	{
 			console.log('generating key pair')
 			exec('./genkey.sh '+data.username, (error,stdout, stderr) => {
 				console.log('created key pair')
-			})
 
-			const p1 = new Promise ((resolve, reject) => {
-				exec('ls -al | grep '+data.username+'.pub', (error, stdout, stderr) => {
-					if(stdout){
-						publicKey = data.username+'.pub'
-						resolve(publicKey)
-					}
-					else{
-						reject('reject')
-					}
+				const p1 = new Promise ((resolve, reject) => {
+					exec('ls -al | grep '+data.username+'.pub', (error, stdout, stderr) => {
+						if(stdout){
+							publicKey = data.username+'.pub'
+							resolve(publicKey)
+						}
+						else{
+							reject('reject')
+						}
+					})
 				})
-			})
 
-			const p2 = new Promise ((resolve, reject) => {
-				exec('ls -al | grep '+data.username+'.pem', (error, stdout, stderr) => {
-					if(stdout){
-						privateKey = data.username+'.pem'
-						resolve(privateKey)
-					}
-					else{
-						reject('reject')
-					}
+				const p2 = new Promise ((resolve, reject) => {
+					exec('ls -al | grep '+data.username+'.pem', (error, stdout, stderr) => {
+						if(stdout){
+							privateKey = data.username+'.pem'
+							resolve(privateKey)
+						}
+						else{
+							reject('reject')
+						}
+					})
 				})
-			})
 
-			Promise.all([p1,p2])
-			.then((value) => {
-				User.update({_id: req.session._id}, {key: {publicKey: value[0], privateKey:value[1]}})
-				.then((data) => {
-					console.log(privateKey)
-					console.log(publicKey)
-					if(data.ok == 1){
-						console.log('update success')
-					}
-					else{
-						console.log('error generateing keys')
-					}
+				Promise.all([p1,p2])
+				.then((value) => {
+					User.update({_id: req.session._id}, {key: {publicKey: value[0], privateKey:value[1]}})
+					.then((data) => {
+						console.log(privateKey)
+						console.log(publicKey)
+						if(data.ok == 1){
+							console.log('update success')
+						}
+						else{
+							console.log('error generateing keys')
+						}
+					})
 				})
+				.catch((error) => console.log(error))
 			})
-			.catch((error) => console.log(error))
 			
 		}
 		else{

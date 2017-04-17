@@ -14,15 +14,10 @@ router.get('/', (req,res) => res.send('hello, world'))
 router.get('/encrypt', (req, res) => {
 	User.findOne({_id: req.session._id})
 	.then((data) => {
-		fs.readFile("./file.txt", "utf-8", function(err, plain) {
-			console.log(plain)
-			fs.readFile("./"+data.key.publicKey, 'utf8', function (err, data) {
-				console.log(data)
-				const bufferToEncrypt = new Buffer(plain);
-				const encrypted = crypto.publicEncrypt({"key":data, padding:constants.RSA_NO_PADDING}, bufferToEncrypt).toString("base64");
-				res.send(encrypted);  // length 256
-			})
-		})
+		const plain = Buffer.from(fs.readFileSync('./file.txt', 'utf-8'))
+		const publicKey = fs.readFileSync('./'+data.key.publicKey, 'utf-8')
+		const encrypted = crypto.publicEncrypt({"key":publicKey, padding:constants.RSA_NO_PADDING}, plain).toString('hex')
+		res.send(encrypted)
 	})
 })
 

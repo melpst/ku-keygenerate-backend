@@ -44,6 +44,9 @@ router.get('/keygen', (req, res) =>	{
 						publicKey = data.username+'.pub'
 						resolve(publicKey)
 					}
+					else{
+						reject('reject')
+					}
 				})
 			})
 
@@ -52,6 +55,9 @@ router.get('/keygen', (req, res) =>	{
 					if(stdout){
 						privateKey = data.username+'.pem'
 						resolve(privateKey)
+					}
+					else{
+						reject('reject')
 					}
 				})
 			})

@@ -12,22 +12,15 @@ const router = Router()
 router.get('/', (req,res) => res.send('hello, world'))
 
 router.get('/encrypt', (req, res) => {
-	const padding = Buffer.from(crypto.randomBytes(10).toString('utf-8'))
-	console.log(padding)
-
+	const padding = crypto.randomBytes(10)
+	let plain = Buffer.from(fs.readFileSync('./file.txt', 'utf-8'))
+	plain = Buffer.concat([plain, padding], 256)
 	User.findOne({_id: req.session._id})
 	.then((data) => {
-		let plain = Buffer.from(fs.readFileSync('./file.txt', 'utf-8'))
-		plain = Buffer.concat([plain, padding], 256)
 		const publicKey = fs.readFileSync('./'+data.key.publicKey, 'utf-8')
-		const encrypted = crypto.publicEncrypt({"key": publicKey, padding: constants.RSA_NO_PADDING}, plain).toString('base64')
-		fs.writeFile("./"+data.username+'.enc', encrypted, function(err) {
-		    if(err) {
-		        return console.log(err)
-		    }
-		    console.log("The file was saved!")
-		})
-		res.send(encrypted)
+		const cipher = crypto.publicEncrypt({"key": publicKey, padding: constants.RSA_NO_PADDING}, plain).toString('hex')
+		fs.writeFileSync("./"+data.username+'.enc', cipher, 'utf-8')
+		res.send(cipher)
 	})
 })
 

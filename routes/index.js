@@ -11,6 +11,17 @@ const router = Router()
 
 router.get('/', (req,res) => res.send('hello, world'))
 
+router.get('/decrypt', (req, res) =>{
+	User.findOne({_id: req.session._id})
+	.then((data) => {
+		const privateKey = fs.readFileSync('./'+data.key.privateKey, 'utf8')
+		const buf = fs.readFileSync('./'+data.username+'.enc', 'hex')
+		const cipher = Buffer.from(buf, 'hex')
+		const msg = crypto.privateDecrypt({"key": privateKey, padding: constants.RSA_NO_PADDING}, cipher)
+		res.send(msg)
+	})
+})
+
 router.get('/encrypt', (req, res) => {
 	const padding = new Buffer('fdgmydvm;8') //crypto.randomBytes(10)
 	const plain = fs.readFileSync('./file.txt', 'utf8')
@@ -31,7 +42,7 @@ router.get('/keygen', (req, res) =>	{
 	const user = User.findOne({_id: req.session._id})
 	.then((data) => {
 		console.log(data)
-		if(data.key.publicKey === undefined){
+		if(!data.key.publicKey && data.key.publicKey === undefined){
 			let publicKey = ''
 			let privateKey = ''
 			console.log('generating key pair')

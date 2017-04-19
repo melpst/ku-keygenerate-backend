@@ -1,12 +1,14 @@
 const {Router} = require('express')
-const {User} = require('../models')
+const axios = require('axios')
 const constants = require("constants")
 const crypto = require("crypto")
 const fs = require('fs')
-const axios = require('axios')
+const ursa = require('ursa')
 
 const util = require('util')
 const exec = require('child_process').exec
+
+const {User} = require('../models')
 
 const router = Router()
 
@@ -44,35 +46,27 @@ router.get('/keygen', (req, res) =>	{
 	const user = User.findOne({_id: req.session._id})
 	.then((data) => {
 		if(data.key.publicKey === undefined){
-			let publicKey = ''
-			let privateKey = ''
-			console.log('generating key pair')
-			exec('./genkey.sh '+data.username, (error,stdout, stderr) => {
-				console.log('created key pair')
-
-				const publicKey = fs.readFileSync('./'+data.username+'.pub', 'utf8')
-				const privateKey = fs.readFileSync('./'+data.username+'.pem', 'utf8')
-
-				User.update({_id: req.session._id}, {key: {publicKey: publicKey, privateKey: privateKey}})
-				.then((data) => {
-					console.log(privateKey)
-					console.log(publicKey)
-					if(data.ok == 1){
-						axios.post('http://localhost:4000/key/publickey', {
-							publicKey: publicKey
-						})
-						.then((response) => {
-							console.log(response.status)	
-						})
-						console.log('update success')
+			const genKey = ursa.generatePrivateKey()
+			const publicKey = genKey.toPublicPem('utf8')
+			const privateKey = genKey.toPrivatePem('utf8')
+			
+			User.update({_id: req.session._id}, {key: {publicKey: publicKey, privateKey: privateKey}})
+			.then((data) => {
+				console.log(privateKey)
+				console.log(publicKey)
+				axios.post('http://localhost:4000/key/publickey', {
+					publicKey: publicKey
+				})
+				.then((response) => {
+					if(response.status == 200){
+						console.log('send public key successfully')
 					}
 					else{
-						console.log('error generating keys')
+						console.log('cannot send public key')
 					}
 				})
-				.catch((error) => console.log(error))
 			})
-			
+			.catch((error) => console.log(error))			
 		}
 		else{
 			console.log('this user already has key pair')

@@ -3,6 +3,7 @@ const {User} = require('../models')
 const constants = require("constants")
 const crypto = require("crypto")
 const fs = require('fs')
+const axios = require('axios')
 
 const util = require('util')
 const exec = require('child_process').exec
@@ -57,6 +58,12 @@ router.get('/keygen', (req, res) =>	{
 					console.log(privateKey)
 					console.log(publicKey)
 					if(data.ok == 1){
+						axios.post('http://localhost:4000/key/publickey', {
+							publicKey: publicKey
+						})
+						.then((response) => {
+							console.log(response.status)	
+						})
 						console.log('update success')
 					}
 					else{

@@ -12,6 +12,21 @@ const {User} = require('../models')
 
 const router = Router()
 
+const sendPublicKeyToAssess = (publicKey) => (data) => {
+	axios.post('http://localhost:4000/key/publickey', {
+		publicKey: publicKey
+	})
+	.then((response) => {
+		if(response.status == 200){
+			console.log('send public key successfully')
+		}
+		else{
+			console.log('cannot send public key')
+		}
+	})
+}
+
+
 router.get('/', (req,res) => res.send('hello, world'))
 
 router.get('/decrypt', (req, res) =>{
@@ -51,21 +66,7 @@ router.get('/keygen', (req, res) =>	{
 			const privateKey = genKey.toPrivatePem('utf8')
 			
 			User.update({_id: req.session._id}, {key: {publicKey: publicKey, privateKey: privateKey}})
-			.then((data) => {
-				console.log(privateKey)
-				console.log(publicKey)
-				axios.post('http://localhost:4000/key/publickey', {
-					publicKey: publicKey
-				})
-				.then((response) => {
-					if(response.status == 200){
-						console.log('send public key successfully')
-					}
-					else{
-						console.log('cannot send public key')
-					}
-				})
-			})
+			.then(sendPublicKeyToAssess(publicKey))
 			.catch((error) => console.log(error))			
 		}
 		else{

@@ -8,7 +8,8 @@ const userSchema = new Schema({
 	key: {
 		publicKey : String,
 		privateKey : String
-	}
+	},
+	cipherId : String
 }, { minimize: false })
 
 module.exports = mongoose.model('User', userSchema)

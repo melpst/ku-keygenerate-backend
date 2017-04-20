@@ -94,8 +94,7 @@ router.post('/register', (req,res) => {
 			newUser.password = req.body.password
 			newUser.key.publicKey = publicKey
 			newUser.key.privateKey = privateKey
-			//newUser.cipherId = cipherId
-			console.log(cipherId)
+			newUser.cipherId = cipherId
 
 			newUser.save()
 			.then((data) => res.status(201).send(data))

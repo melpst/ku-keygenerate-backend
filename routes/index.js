@@ -5,9 +5,6 @@ const crypto = require("crypto")
 const fs = require('fs')
 const ursa = require('ursa')
 
-const util = require('util')
-const exec = require('child_process').exec
-
 const {User} = require('../models')
 
 const router = Router()
@@ -122,16 +119,8 @@ router.post('/register', (req,res) => {
 router.delete('/:username', (req, res) => {
   User.remove({username: req.params.username})
   .then((data) => {
-  	exec('rm '+req.params.username+'.*', (error, stdout, stderr) => {
-		if(!error){
-			res.send('delete user successfully')
-		}
-		else{
-			console.log(error)
-			res.send('can delete user but key still in server')
-		}
+		res.send('delete user successfully')
 	})
-  })
   .catch((error) => console.log(error))
 })
 

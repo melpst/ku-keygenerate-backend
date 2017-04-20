@@ -31,12 +31,13 @@ router.use('/subjects', subjects)
 router.get('/', (req,res) => res.send('hello, world'))
 
 router.get('/decrypt', (req, res) =>{
+	console.log(req)
 	User.findOne({_id: req.session._id})
 	.then((data) => {
-		const privateKey = fs.readFileSync('./'+data.key.privateKey, 'utf8')
-		const buf = fs.readFileSync('./'+data.username+'.enc', 'hex')
-		const cipher = Buffer.from(buf, 'hex')
-		const msg = crypto.privateDecrypt({"key": privateKey, padding: constants.RSA_NO_PADDING}, cipher)
+		const privateKey = Buffer.from(data.key.privateKey)
+		const cipher = req.body.ciphers.filter(c => c.id === data.cipherId)[0]
+		const cipherBuf = Buffer.from(cipher)
+		const msg = crypto.privateDecrypt({"key": privateKey, padding: constants.RSA_NO_PADDING}, cipherBuf)
 		res.send(msg)
 	})
 })
@@ -67,7 +68,7 @@ router.get('/users', (req,res) => {
 })
 
 router.post('/login', (req,res) => {
-	const query = User.findOne({username : req.body.username})
+	User.findOne({username : req.body.username})
 	.then((data) => {
 		if(data.password === req.body.password){
 			console.log('saving _id to session')
@@ -112,6 +113,18 @@ router.delete('/:username', (req, res) => {
 		res.send('delete user successfully')
 	})
   .catch((error) => console.log(error))
+})
+
+router.get('/testaxios', (req, res) => {
+	req.session._id = 'fucku'
+	axios.get('http://localhost:3000/textaxios2')
+		.then((response) => console.log('textaxios2', response.data))
+		.catch((error) => console.log('textaxios2 error,', error))
+})
+
+router.get('/textaxios2', (req, res) => {
+	console.log('req.session._id', req.session._id)
+	res.send('fuck u too')
 })
 
 module.exports = router

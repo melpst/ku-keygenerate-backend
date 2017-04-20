@@ -13,7 +13,15 @@ router.get('/:subjectId', (req, res) => {
 			state: data.state
 		})
 		.then((response) => {
-			res.send(response.data)
+			axios.get('http://localhost:3000/decrypt', {
+				params: {
+					id: req.session._id,
+					ciphers: data
+				}
+			})
+			.then((response) => {
+				res.send(response.data)
+			})
 		})
 	})
 	

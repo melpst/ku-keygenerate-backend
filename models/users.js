@@ -9,7 +9,8 @@ const userSchema = new Schema({
 		publicKey : String,
 		privateKey : String
 	},
-	cipherId : String
+	cipherId : String,
+	state: { type: Boolean, default: false }
 }, { minimize: false })
 
 module.exports = mongoose.model('User', userSchema)

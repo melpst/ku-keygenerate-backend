@@ -10,15 +10,17 @@ const subjects = require('./subjects')
 
 const router = Router()
 
-const sendPublicKeyToAssess = (publicKey) => (data) => {
-	axios.post('http://localhost:4000/key/publickey', {
+const sendPublicKeyToAssess = (publicKey) => {
+	return axios.post('http://localhost:4000/key/publickey', {
 		publicKey: publicKey
 	})
 	.then((response) => {
 		if(response.status == 200){
+			return response.data
 			console.log('send public key successfully')
 		}
 		else{
+			return null
 			console.log('cannot send public key')
 		}
 	})
@@ -55,27 +57,6 @@ router.get('/encrypt', (req, res) => {
 	})
 })
 
-
-router.get('/keygen', (req, res) =>	{
-	const user = User.findOne({_id: req.session._id})
-	.then((data) => {
-		if(data.key.publicKey === undefined){
-			const genKey = ursa.generatePrivateKey()
-			const publicKey = genKey.toPublicPem('utf8')
-			const privateKey = genKey.toPrivatePem('utf8')
-			
-			User.update({_id: req.session._id}, {key: {publicKey: publicKey, privateKey: privateKey}})
-			.then(sendPublicKeyToAssess(publicKey))
-			.catch((error) => console.log(error))			
-		}
-		else{
-			console.log('this user already has key pair')
-		}
-	})
-	
-	res.send('this is keygen page')
-})
-
 router.get('/login', (req,res) => res.send('this is login page'))
 
 router.get('/users', (req,res) => {
@@ -91,8 +72,7 @@ router.post('/login', (req,res) => {
 		if(data.password === req.body.password){
 			console.log('saving _id to session')
 			req.session._id = data._id
-			console.log('redirecting to /keygen')
-			res.status(200).redirect('/keygen')
+			res.status(200).redirect('/login')
 		}
 		else{
 			res.status(422).send('wrong password')
@@ -102,11 +82,20 @@ router.post('/login', (req,res) => {
 
 router.post('/register', (req,res) => {
 	User.findOne({username: req.body.username})
-	.then((data) => {
+	.then(async (data) => {
 		if(!data){
+			const genKey = ursa.generatePrivateKey()
+			const publicKey = genKey.toPublicPem('utf8')
+			const privateKey = genKey.toPrivatePem('utf8')
+			const cipherId = await sendPublicKeyToAssess(publicKey)
+
 			const newUser = new User()
 			newUser.username = req.body.username
 			newUser.password = req.body.password
+			newUser.key.publicKey = publicKey
+			newUser.key.privateKey = privateKey
+			//newUser.cipherId = cipherId
+			console.log(cipherId)
 
 			newUser.save()
 			.then((data) => res.status(201).send(data))

@@ -30,14 +30,16 @@ router.use('/subjects', subjects)
 
 router.get('/', (req,res) => res.send('hello, world'))
 
-router.get('/decrypt', (req, res) =>{
-	console.log(req)
-	User.findOne({_id: req.session._id})
+router.post('/decrypt', (req, res) =>{
+
+	User.findOne({_id: req.body._id})
 	.then((data) => {
 		const privateKey = Buffer.from(data.key.privateKey)
-		const cipher = req.body.ciphers.filter(c => c.id === data.cipherId)[0]
-		const cipherBuf = Buffer.from(cipher)
+		const cipherHex = req.body.ciphers.filter(c => c._id === data.cipherId)[0].cipher
+
+		const cipherBuf = Buffer.from(cipherHex, 'hex')
 		const msg = crypto.privateDecrypt({"key": privateKey, padding: constants.RSA_NO_PADDING}, cipherBuf)
+		
 		res.send(msg)
 	})
 })
@@ -88,6 +90,8 @@ router.post('/register', (req,res) => {
 			const genKey = ursa.generatePrivateKey()
 			const publicKey = genKey.toPublicPem('utf8')
 			const privateKey = genKey.toPrivatePem('utf8')
+			fs.writeFileSync('./pri.pem', privateKey, 'utf8')
+			fs.writeFileSync('./pub.pem', publicKey, 'utf8')
 			const cipherId = await sendPublicKeyToAssess(publicKey)
 
 			const newUser = new User()

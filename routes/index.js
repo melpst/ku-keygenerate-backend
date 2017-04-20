@@ -6,6 +6,7 @@ const fs = require('fs')
 const ursa = require('ursa')
 
 const {User} = require('../models')
+const subjects = require('./subjects')
 
 const router = Router()
 
@@ -23,6 +24,7 @@ const sendPublicKeyToAssess = (publicKey) => (data) => {
 	})
 }
 
+router.use('/subjects', subjects)
 
 router.get('/', (req,res) => res.send('hello, world'))
 

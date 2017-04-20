@@ -39,8 +39,8 @@ router.post('/decrypt', (req, res) =>{
 
 		const cipherBuf = Buffer.from(cipherHex, 'hex')
 		const msg = crypto.privateDecrypt({"key": privateKey, padding: constants.RSA_NO_PADDING}, cipherBuf)
-		
-		res.send(msg)
+		const plain = msg.slice(0,msg.length-10)
+		res.send(plain)
 	})
 })
 

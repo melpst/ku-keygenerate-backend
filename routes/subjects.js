@@ -9,7 +9,7 @@ router.get('/', (req,res) => res.send('subjects~~'))
 router.get('/:subjectId', (req, res) => {
 	User.findOne({_id: req.session._id})
 	.then((data) => {
-		axios.get('http://localhost:4000/subjects/'+req.params+subjectId, {
+		axios.get('http://localhost:4000/subjects/'+req.params.subjectId, {
 			state: data.state
 		})
 		.then((response) => {

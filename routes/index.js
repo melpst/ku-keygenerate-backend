@@ -31,7 +31,6 @@ router.use('/subjects', subjects)
 router.get('/', (req,res) => res.send('hello, world'))
 
 router.post('/decrypt', (req, res) =>{
-
 	User.findOne({_id: req.body._id})
 	.then((data) => {
 		const privateKey = Buffer.from(data.key.privateKey)
@@ -40,23 +39,36 @@ router.post('/decrypt', (req, res) =>{
 		const cipherBuf = Buffer.from(cipherHex, 'hex')
 		const msg = crypto.privateDecrypt({"key": privateKey, padding: constants.RSA_NO_PADDING}, cipherBuf)
 		const plain = msg.slice(0,msg.length-10)
+		console.log('plain is ', plain)
 		res.send(plain)
 	})
 })
 
-router.get('/encrypt', (req, res) => {
-	const padding = new Buffer('fdgmydvm;8') //crypto.randomBytes(10)
-	const plain = fs.readFileSync('./file.txt', 'utf8')
-	let plainBuf = Buffer.from(plain)
-	plainBuf = Buffer.concat([plainBuf, padding], 256)
+router.post('/checkcipher', (req, res) => {
+	const originalCiphers = req.body.ciphers
+	const publicKeys = req.body.keys
+	const plain = Buffer.from(req.body.word)
 
-	User.findOne({_id: req.session._id})
+	for (let key in publicKeys) {
+		const padding = Buffer.from(publicKeys[key].padding)
+		const plainBuf = Buffer.concat([plain, padding], 256)
+		const cipher = crypto.publicEncrypt({"key": publicKeys[key].publicKey, padding: constants.RSA_NO_PADDING}, plainBuf).toString('utf8')
+
+		const cipherHex = originalCiphers.filter(c => c._id === publicKeys[key]._id)[0].cipher
+		const cipherBuf = Buffer.from(cipherHex, 'hex')
+		const originalCipher = cipherBuf.toString('utf8')
+
+		if(cipher !== originalCipher){
+			res.send({success: false})
+		}
+	}
+
+	User.update({_id: req.body._id}, {state: true})
 	.then((data) => {
-		const publicKey = fs.readFileSync('./'+data.key.publicKey, 'utf8')
-		const cipher = crypto.publicEncrypt({"key": publicKey, padding: constants.RSA_NO_PADDING}, plainBuf)
-
-		fs.writeFileSync("./"+data.username+'.enc', cipher, 'hex')
-		res.send(cipher.toString('hex'))
+		res.send({success: true})
+	})
+	.catch((error) => {
+		res.send(error)
 	})
 })
 

@@ -3,6 +3,7 @@ const bodyParser = require('body-parser')
 const mongoose = require('mongoose')
 const morgan = require('morgan')
 const session = require('express-session')
+const cors = require('cors')
 const routes = require('./routes')
 const configDB = require('./credentials/mongolab.js')
 const port = process.env.PORT || 3000
@@ -20,6 +21,7 @@ app.use(session({
 	saveUninitialized: true,
 	resave: false
 }))
+app.use(cors())
 
 app.use('/', routes)
 

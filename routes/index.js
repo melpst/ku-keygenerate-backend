@@ -42,6 +42,7 @@ router.post('/decrypt', (req, res) =>{
 		console.log('plain is ', plain)
 		res.send(plain)
 	})
+	.catch((error) => res.send({success: false}))
 })
 
 router.post('/checkcipher', (req, res) => {
@@ -68,7 +69,7 @@ router.post('/checkcipher', (req, res) => {
 		res.send({success: true})
 	})
 	.catch((error) => {
-		res.send(error)
+		res.send({success: false})
 	})
 })
 
@@ -120,7 +121,7 @@ router.post('/register', (req,res) => {
 
 			newUser.save()
 			.then((data) => res.status(201).send(data))
-			.catch((error) => console.log(error))
+			.catch((error) => res.send(error)
 		}
 		else {
 			res.status(409).send('this username has been used')
@@ -133,7 +134,7 @@ router.delete('/:username', (req, res) => {
   .then((data) => {
 		res.send('delete user successfully')
 	})
-  .catch((error) => console.log(error))
+  .catch((error) => res.send(error)
 })
 
 router.get('/testaxios', (req, res) => {

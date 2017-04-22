@@ -88,7 +88,7 @@ router.post('/login', (req,res) => {
 			if(data.password === req.body.password){
 				console.log('saving _id to session')
 				req.session._id = data._id
-				res.redirect('/subjects')
+				res.status(200).send({ _id: data._id })
 			}
 			else{
 				res.status(403).send('wrong password')

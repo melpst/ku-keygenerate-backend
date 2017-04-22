@@ -84,13 +84,18 @@ router.get('/users', (req,res) => {
 router.post('/login', (req,res) => {
 	User.findOne({username : req.body.username})
 	.then((data) => {
-		if(data.password === req.body.password){
-			console.log('saving _id to session')
-			req.session._id = data._id
-			res.status(200).redirect('/subjects')
+		if(data){
+			if(data.password === req.body.password){
+				console.log('saving _id to session')
+				req.session._id = data._id
+				res.redirect('/subjects')
+			}
+			else{
+				res.status(403).send('wrong password')
+			}
 		}
 		else{
-			res.status(422).send('wrong password')
+			res.status(403).send('wrong username')
 		}
 	})
 })

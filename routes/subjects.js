@@ -8,7 +8,12 @@ const router = Router()
 router.get('/', (req,res) => res.send('subjects~~'))
 
 router.get('/:subjectId', async (req, res) => {
-	const data = await User.findOne({_id: req.session._id})
+	console.log('req.session._id:', req.session._id)
+	console.log('req.headers._id:', req.headers._id)
+	if (req.headers._id && !req.session._id) {
+		req.session._id = req.headers._id
+	}
+	const data = await User.findOne({_id: req.headers._id})
 	console.log('state', data.state)
 	const subjectsResponse = await axios.get('http://localhost:4000/subjects/'+req.params.subjectId, {
 		headers: {state: data.state}

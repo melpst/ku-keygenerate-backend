@@ -13,7 +13,9 @@ router.get('/:subjectId', async (req, res) => {
 	if (req.headers._id && !req.session._id) {
 		req.session._id = req.headers._id
 	}
-	const data = await User.findOne({_id: req.headers._id})
+	console.log('req.session._id:', req.session._id)
+	console.log('req.headers._id:', req.headers._id)
+	const data = await User.findOne({_id: req.session._id})
 	console.log('state', data.state)
 	const subjectsResponse = await axios.get('http://localhost:4000/subjects/'+req.params.subjectId, {
 		headers: {state: data.state}
@@ -50,7 +52,7 @@ router.get('/:subjectId', async (req, res) => {
 				const updateData = await User.findOne({_id: req.session._id})
 				console.log('update data state', updateData.state)
 				const updateSubjectsResponse = await axios.get('http://localhost:4000/subjects/'+req.params.subjectId, {
-					headers: {state: data.state}
+					headers: {state: updateData.state}
 				})
 				res.send(updateSubjectsResponse.data)
 			}

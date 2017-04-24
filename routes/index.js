@@ -121,7 +121,7 @@ router.post('/register', (req,res) => {
 
 			newUser.save()
 			.then((data) => res.status(201).send(data))
-			.catch((error) => res.send(error)
+			.catch((error) => res.send(error))
 		}
 		else {
 			res.status(409).send('this username has been used')
@@ -134,19 +134,8 @@ router.delete('/:username', (req, res) => {
   .then((data) => {
 		res.send('delete user successfully')
 	})
-  .catch((error) => res.send(error)
+  .catch((error) => res.send(error))
 })
 
-router.get('/testaxios', (req, res) => {
-	req.session._id = 'fucku'
-	axios.get('http://localhost:3000/textaxios2')
-		.then((response) => console.log('textaxios2', response.data))
-		.catch((error) => console.log('textaxios2 error,', error))
-})
-
-router.get('/textaxios2', (req, res) => {
-	console.log('req.session._id', req.session._id)
-	res.send('fuck u too')
-})
 
 module.exports = router

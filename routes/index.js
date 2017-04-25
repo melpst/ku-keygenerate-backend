@@ -17,11 +17,11 @@ const sendPublicKeyToAssess = (publicKey) => {
 	.then((response) => {
 		if(response.status == 200){
 			return response.data
-			console.log('send public key successfully')
+			console.log('Sending public key successfully')
 		}
 		else{
 			return null
-			console.log('cannot send public key')
+			console.log('Cannot send public key')
 		}
 	})
 }
@@ -37,9 +37,11 @@ router.post('/decrypt', (req, res) =>{
 		const cipherHex = req.body.ciphers.filter(c => c._id === data.cipherId)[0].cipher
 
 		const cipherBuf = Buffer.from(cipherHex, 'hex')
+		console.log('Decrypting...')
 		const msg = crypto.privateDecrypt({"key": privateKey, padding: constants.RSA_NO_PADDING}, cipherBuf)
 		const plain = msg.slice(0,msg.length-10)
-		console.log('plain is ', plain)
+		console.log('Plain text is ', plain.toString())
+		console.log('==========================================')
 		res.send(plain)
 	})
 	.catch((error) => res.send({success: false}))
@@ -50,6 +52,7 @@ router.post('/checkcipher', (req, res) => {
 	const publicKeys = req.body.keys
 	const plain = Buffer.from(req.body.word)
 
+	console.log('Checking each cipher to fresh encrypt cipher')
 	for (let key in publicKeys) {
 		const padding = Buffer.from(publicKeys[key].padding)
 		const plainBuf = Buffer.concat([plain, padding], 256)
@@ -60,7 +63,8 @@ router.post('/checkcipher', (req, res) => {
 		const originalCipher = cipherBuf.toString('utf8')
 
 		if(cipher !== originalCipher){
-			console.log('cipher is not correct')
+			console.log('Cipher is not correct.')
+			console.log('==========================================')
 			res.send({success: false})
 		}
 	}
@@ -68,8 +72,9 @@ router.post('/checkcipher', (req, res) => {
 
 	// User.update({_id: req.body._id}, {state: true})
 	// .then((data) => {
-	req.session.state = true
-	res.send({success: true})
+	console.log('Ciphers are correct.')
+	console.log('==========================================')
+	res.send({state: true})
 	// })
 	// .catch((error) => {
 	// 	res.send({success: false})

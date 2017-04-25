@@ -68,7 +68,7 @@ router.post('/checkcipher', (req, res) => {
 
 	// User.update({_id: req.body._id}, {state: true})
 	// .then((data) => {
-	req.session.canAssess = true
+	req.session.state = true
 	res.send({success: true})
 	// })
 	// .catch((error) => {
@@ -92,7 +92,7 @@ router.post('/login', (req,res) => {
 			if(data.password === req.body.password){
 				console.log('saving _id to session')
 				req.session._id = data._id
-				req.session.canAssess = false
+				req.session.state = false
 				res.status(200).send({ _id: data._id })
 			}
 			else{

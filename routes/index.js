@@ -60,17 +60,20 @@ router.post('/checkcipher', (req, res) => {
 		const originalCipher = cipherBuf.toString('utf8')
 
 		if(cipher !== originalCipher){
+			console.log('cipher is not correct')
 			res.send({success: false})
 		}
 	}
 
-	User.update({_id: req.body._id}, {state: true})
-	.then((data) => {
-		res.send({success: true})
-	})
-	.catch((error) => {
-		res.send({success: false})
-	})
+
+	// User.update({_id: req.body._id}, {state: true})
+	// .then((data) => {
+	req.session.canAssess = true
+	res.send({success: true})
+	// })
+	// .catch((error) => {
+	// 	res.send({success: false})
+	// })
 })
 
 router.get('/login', (req,res) => res.send('this is login page'))
@@ -89,6 +92,7 @@ router.post('/login', (req,res) => {
 			if(data.password === req.body.password){
 				console.log('saving _id to session')
 				req.session._id = data._id
+				req.session.canAssess = false
 				res.status(200).send({ _id: data._id })
 			}
 			else{

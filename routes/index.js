@@ -10,8 +10,11 @@ const subjects = require('./subjects')
 
 const router = Router()
 
+const keygenIP = 'http://158.108.33.51:3000'
+const assessIP = 'http://158.108.33.33:4000'
+
 const sendPublicKeyToAssess = (publicKey) => {
-	return axios.post('http://localhost:4000/key/publickey', {
+	return axios.post(assessIP+'/key/publickey', {
 		publicKey: publicKey
 	})
 	.then((response) => {

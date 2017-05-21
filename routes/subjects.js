@@ -42,6 +42,7 @@ router.get('/:subjectId', async (req, res) => {
 		const checkWordResponse = await axios.post('http://localhost:4000/checkword', {
 			word: decryptResponse.data
 		})
+		console.log('word is', decryptResponse.data)
 		console.log('==========================================')
 
 		if(!_.isEqual(checkWordResponse.data, {success: false})){
@@ -64,7 +65,6 @@ router.get('/:subjectId', async (req, res) => {
 					headers: {state: req.session.state}
 				})
 				console.log('==========================================')
-				
 			}
 		}
 	}

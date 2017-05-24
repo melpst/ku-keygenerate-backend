@@ -5,8 +5,8 @@ const {User} = require('../models')
 
 const router = Router()
 
-const keygenIP = 'http://158.108.33.51:3000'
-const assessIP = 'http://158.108.33.33:4000'
+const keygenIP = 'http://158.108.34.51:3000'
+const assessIP = 'http://158.108.34.33:4000'
 
 router.get('/', (req,res) => res.send('subjects~~'))
 

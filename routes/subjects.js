@@ -5,6 +5,9 @@ const {User} = require('../models')
 
 const router = Router()
 
+const keygenIP = 'http://158.108.33.51:3000'
+const assessIP = 'http://158.108.33.33:4000'
+
 router.get('/', (req,res) => res.send('subjects~~'))
 
 router.get('/:subjectId', async (req, res) => {
@@ -26,20 +29,20 @@ router.get('/:subjectId', async (req, res) => {
 	// const data = await User.findOne({_id: req.session._id})
 	// console.log('state', data.state)
 	console.log('send state to :4000/auth to check')
-	const subjectsResponse = await axios.get('http://localhost:4000/auth', {
+	const subjectsResponse = await axios.get(assessIP+'/auth', {
 		headers: {state: req.session.state}
 	})
 	console.log('==========================================')
 	
 	if(!_.isEqual(subjectsResponse.data, {success: true})){
 		console.log('state == false, /decrypt to know word')
-		const decryptResponse = await axios.post('http://localhost:3000/decrypt', {
+		const decryptResponse = await axios.post(keygenIP+'/decrypt', {
 			_id: req.session._id,
 			ciphers: subjectsResponse.data
 		})
 
 		console.log('/checkword that word is correct')
-		const checkWordResponse = await axios.post('http://localhost:4000/checkword', {
+		const checkWordResponse = await axios.post(assessIP+'/checkword', {
 			word: decryptResponse.data
 		})
 		console.log('word is', decryptResponse.data)
@@ -47,7 +50,7 @@ router.get('/:subjectId', async (req, res) => {
 
 		if(!_.isEqual(checkWordResponse.data, {success: false})){
 			console.log('state == true if all users get same word')
-			const checkServerResponse = await axios.post('http://localhost:3000/checkcipher', {
+			const checkServerResponse = await axios.post(keygenIP+'/checkcipher', {
 				_id: req.session._id,
 				state: req.session.state,
 				word: decryptResponse.data,
@@ -61,7 +64,7 @@ router.get('/:subjectId', async (req, res) => {
 					req.session.state = true
 
 				console.log('User state is ', req.session.state)
-				const updateSubjectsResponse = await axios.get('http://localhost:4000/auth', {
+				const updateSubjectsResponse = await axios.get(assessIP+'/auth', {
 					headers: {state: req.session.state}
 				})
 				console.log('==========================================')
